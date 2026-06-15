@@ -59,8 +59,10 @@
   /* worked-on */
   .item.done{background:var(--orange-bg);border-color:var(--orange-border);}
   .item.done .txt{font-weight:600;}
-  .item .tick{flex:none;margin-left:auto;color:var(--orange);font-weight:800;font-size:13px;
-    display:flex;align-items:center;gap:3px;padding-top:4px;}
+  .item .tick{flex:none;margin-left:auto;color:var(--orange);font-weight:600;font-size:10px;
+    letter-spacing:.4px;text-transform:uppercase;align-self:center;
+    padding:3px 9px;border:1px solid var(--orange-border);border-radius:999px;background:var(--white);white-space:nowrap;}
+  .item .tick.wip{color:var(--gray);border-color:var(--border);}
   /* deprioritized */
   .item.dim{opacity:.5;}
   .item.dim .pr{background:transparent;border:1px dashed var(--border);color:var(--gray2);}
@@ -141,11 +143,11 @@
     <div class="col col-plus">
       <div class="col-head"><div class="col-sign">+</div><div class="name">Сильные стороны<small>что у нас уже работает</small></div></div>
       <div class="col-body">
-        <div class="item done p-high"><div class="pr">10</div><div class="txt">Большая база постоянных клиентов</div><div class="tick">● в работе</div></div>
-        <div class="item done p-high"><div class="pr">9</div><div class="txt">Масштабируемая и сходящаяся бизнес-модель</div><div class="tick">● в работе</div></div>
-        <div class="item done p-high"><div class="pr">8</div><div class="txt">Скорость принятия решений</div><div class="tick">✓ результат</div></div>
-        <div class="item done p-high"><div class="pr">7</div><div class="txt">Устойчивые и масштабируемые процессы сопровождения клиентов</div><div class="tick">✓ результат</div></div>
-        <div class="item done p-high"><div class="pr">6</div><div class="txt">Команда профессионалов</div><div class="tick">✓ результат</div></div>
+        <div class="item done p-high"><div class="pr">10</div><div class="txt">Большая база постоянных клиентов</div><div class="tick wip">в работе</div></div>
+        <div class="item done p-high"><div class="pr">9</div><div class="txt">Масштабируемая и сходящаяся бизнес-модель</div><div class="tick wip">в работе</div></div>
+        <div class="item done p-high"><div class="pr">8</div><div class="txt">Скорость принятия решений</div><div class="tick">результат</div></div>
+        <div class="item done p-high"><div class="pr">7</div><div class="txt">Устойчивые и масштабируемые процессы сопровождения клиентов</div><div class="tick">результат</div></div>
+        <div class="item done p-high"><div class="pr">6</div><div class="txt">Команда профессионалов</div><div class="tick">результат</div></div>
         <div class="item dim"><div class="pr">5</div><div class="txt">Временный эксклюзив на ЕБС + ФСТЭК</div></div>
         <div class="item dim"><div class="pr">4</div><div class="txt">Амбициозность</div></div>
         <div class="item dim"><div class="pr">3</div><div class="txt">Собственное ПО</div></div>
@@ -159,14 +161,14 @@
     <div class="col col-minus">
       <div class="col-head"><div class="col-sign">–</div><div class="name">Проблемы<small>что мешает расти</small></div></div>
       <div class="col-body">
-        <div class="item done p-high"><div class="pr">10</div><div class="txt">Техническая нестабильность</div><div class="tick">✓ результат</div></div>
-        <div class="item done p-high"><div class="pr">9</div><div class="txt">Информационная безопасность</div><div class="tick">✓ результат</div></div>
-        <div class="item done p-high"><div class="pr">8</div><div class="txt">Размазывание ответственности или её отсутствие</div><div class="tick">✓ результат</div></div>
-        <div class="item done p-high"><div class="pr">7</div><div class="txt">Legacy</div><div class="tick">● в работе</div></div>
-        <div class="item done p-high"><div class="pr">6</div><div class="txt">Нет «резервов» для роста</div><div class="tick">● в работе</div></div>
+        <div class="item done p-high"><div class="pr">10</div><div class="txt">Техническая нестабильность</div><div class="tick">результат</div></div>
+        <div class="item done p-high"><div class="pr">9</div><div class="txt">Информационная безопасность</div><div class="tick">результат</div></div>
+        <div class="item done p-high"><div class="pr">8</div><div class="txt">Размазывание ответственности или её отсутствие</div><div class="tick">результат</div></div>
+        <div class="item done p-high"><div class="pr">7</div><div class="txt">Legacy</div><div class="tick wip">в работе</div></div>
+        <div class="item done p-high"><div class="pr">6</div><div class="txt">Нет «резервов» для роста</div><div class="tick wip">в работе</div></div>
         <div class="item dim"><div class="pr">5</div><div class="txt">100+ часов в трекере, ½ команды, удобное хранилище</div></div>
         <div class="item dim"><div class="pr">4</div><div class="txt">Нет управляемости для принятия решений / не вижу данных</div></div>
-        <div class="item done"><div class="pr">2</div><div class="txt">Скрытые конфликты</div><div class="tick">✓ результат</div></div>
+        <div class="item done"><div class="pr">2</div><div class="txt">Скрытые конфликты</div><div class="tick">результат</div></div>
         <div class="item dim"><div class="pr">1</div><div class="txt">Нет PR и маркетинговой стратегии</div></div>
       </div>
       <div class="col-foot">+ ещё 11 пунктов без приоритета (риски РИД, нет оргструктуры, культура постановки задач и др.)</div>
@@ -177,7 +179,7 @@
       <div class="col-head"><div class="col-sign">?</div><div class="name">Открытые вопросы<small>что предстоит решить</small></div></div>
       <div class="col-body">
         <div class="item"><div class="pr">3</div><div class="txt">Пересмотр продуктовой линейки</div></div>
-        <div class="item done dim" style="opacity:1;background:var(--orange-bg);border-color:var(--orange-border);"><div class="pr" style="background:var(--gray2);color:#fff;border:none;">?</div><div class="txt" style="font-weight:600;">Много топов?</div><div class="tick">✓ результат</div></div>
+        <div class="item done dim" style="opacity:1;background:var(--orange-bg);border-color:var(--orange-border);"><div class="pr" style="background:var(--gray2);color:#fff;border:none;">?</div><div class="txt" style="font-weight:600;">Много топов?</div><div class="tick">результат</div></div>
         <div class="item dim"><div class="pr">—</div><div class="txt">Уникальность специалистов («эффект» Ангелины)</div></div>
         <div class="item dim"><div class="pr">—</div><div class="txt">Закрыть ИТ-разработку / архитектуру проектными методами?</div></div>
         <div class="item dim"><div class="pr">—</div><div class="txt">Реализм внешней и внутренней dev-team</div></div>
@@ -187,12 +189,6 @@
       </div>
       <div class="col-foot">+ ещё пункты без приоритета (защита бренда, многозадачность, дистант и др.)</div>
     </div>
-  </div>
-
-  <div class="legend">
-    <span><span class="sw swd"></span>Есть результат — проработали</span>
-    <span><span class="sw swh"></span>Высокий приоритет</span>
-    <span><span class="sw swn"></span>Снято с приоритета</span>
   </div>
 
   <!-- ===== RESULTS ===== -->
