@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Экзамус — Итоги работы по приоритетам</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  :root{
+    --orange:#FE4D01; --ink:#1C1C1C; --white:#FFFFFF;
+    --badge-bg:#FFDCDB; --gray:#6B6D7A; --gray2:#949494;
+    --border:#E2E2E2; --soft:#F1F1F1; --orange-bg:#FFFBF8; --orange-border:#FFE1CC;
+    --red:#FF1913; --red-bg:#FFFAFA;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:'Inter',-apple-system,system-ui,sans-serif;
+    color:var(--ink); background:#F4F4F6; line-height:1.4;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 32px 80px;}
+
+  /* header */
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;}
+  .top svg{height:34px;width:auto;display:block;}
+  .top .meta{font-size:13px;color:var(--gray);font-weight:600;
+    background:var(--badge-bg);color:var(--orange);padding:8px 16px;border-radius:999px;}
+
+  h1{font-size:38px;font-weight:800;letter-spacing:-1px;line-height:1.05;margin-bottom:10px;}
+  h1 .ac{color:var(--orange);}
+  .lead{font-size:16px;color:var(--gray);max-width:760px;margin-bottom:8px;}
+
+  .section-title{display:flex;align-items:center;gap:12px;margin:46px 0 18px;}
+  .section-title .bar{width:4px;height:26px;border-radius:4px;background:var(--orange);}
+  .section-title h2{font-size:25px;font-weight:800;letter-spacing:-.5px;}
+  .section-title .hint{font-size:13px;color:var(--gray2);font-weight:500;margin-left:auto;}
+
+  /* priority matrix */
+  .matrix{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
+  .col{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;}
+  .col-head{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--soft);}
+  .col-sign{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:800;color:#fff;line-height:1;}
+  .col-plus .col-sign{background:var(--orange);}
+  .col-minus .col-sign{background:var(--ink);}
+  .col-q .col-sign{background:var(--gray2);}
+  .col-head .name{font-size:14px;font-weight:800;}
+  .col-head .name small{display:block;font-size:11px;font-weight:600;color:var(--gray2);}
+
+  .col-body{padding:10px;display:flex;flex-direction:column;gap:6px;}
+  .item{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border-radius:6px;background:#FAFAFB;border:1px solid #EEE;}
+  .item .pr{flex:none;min-width:26px;height:26px;border-radius:6px;background:var(--soft);color:var(--gray);
+    font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .item .txt{font-size:12.5px;line-height:1.3;padding-top:3px;}
+  /* high priority emphasis */
+  .item.p-high .pr{background:var(--ink);color:#fff;}
+  .col-minus .item.p-high .pr{background:var(--ink);}
+  .col-plus .item.p-high .pr{background:var(--orange);}
+  /* worked-on */
+  .item.done{background:var(--orange-bg);border-color:var(--orange-border);}
+  .item.done .txt{font-weight:600;}
+  .item .tick{flex:none;margin-left:auto;color:var(--orange);font-weight:800;font-size:13px;
+    display:flex;align-items:center;gap:3px;padding-top:4px;}
+  /* deprioritized */
+  .item.dim{opacity:.5;}
+  .item.dim .pr{background:transparent;border:1px dashed var(--border);color:var(--gray2);}
+  .col-foot{margin-top:auto;padding:10px 14px;border-top:1px solid var(--soft);font-size:11px;color:var(--gray2);}
+
+  .legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;font-size:12.5px;color:var(--gray);}
+  .legend span{display:flex;align-items:center;gap:7px;}
+  .legend .sw{width:14px;height:14px;border-radius:4px;}
+  .sw.swd{background:var(--orange-bg);border:1px solid var(--orange-border);}
+  .sw.swh{background:var(--ink);}
+  .sw.swn{background:transparent;border:1px dashed var(--border);}
+
+  /* results */
+  .results{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .res{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:20px 22px;position:relative;}
+  .res::before{content:'';position:absolute;left:0;top:20px;bottom:20px;width:4px;border-radius:4px;background:var(--orange);}
+  .res .rhead{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  .res .rnum{width:34px;height:34px;border-radius:8px;background:var(--orange);color:#fff;
+    font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .res .rtitle{font-size:17px;font-weight:800;letter-spacing:-.3px;}
+  .res .tag{font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:999px;background:var(--badge-bg);color:var(--orange);}
+  .res .tag.tminus{background:#EFEFF1;color:var(--ink);}
+  .res .tag.tq{background:#EFEFF1;color:var(--gray);}
+  .res ul{list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:4px;}
+  .res li{font-size:13.5px;line-height:1.42;color:#3C3C42;padding-left:18px;position:relative;}
+  .res li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--orange);}
+  .res .metric{display:inline-flex;align-items:center;gap:6px;margin-top:12px;
+    background:var(--badge-bg);color:var(--orange);font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;}
+  .res.wide{grid-column:1 / -1;}
+
+  .foot{margin-top:50px;display:flex;align-items:center;justify-content:space-between;
+    font-size:12px;color:var(--gray2);border-top:1px solid var(--border);padding-top:16px;}
+  .foot .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--orange);margin-right:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <svg viewBox="0 0 2550 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M565.337 521.633C602.783 521.633 633.139 491.368 633.139 454.034C633.139 416.699 602.783 386.434 565.337 386.434C527.891 386.434 497.535 416.699 497.535 454.034C497.535 491.368 527.891 521.633 565.337 521.633Z" fill="#1C1C1C"/>
+      <path d="M447.827 343.658C425.352 352.145 412.269 369.149 405.346 385.744C398.105 403.101 382.662 419.527 363.55 419.527H300.154C300.908 417.022 298.355 401.965 305.428 364.691C315.976 309.104 357.369 275.593 393.579 260.277C426.684 246.275 498.306 238.493 579.675 265.535C661.046 292.578 701.731 381.217 715.293 412.015C728.855 442.813 711.947 450.673 701.731 451.076C679.783 451.942 661.157 398.807 600.772 364.691C555.566 339.151 497.552 324.878 447.827 343.658Z" fill="#FE4D01"/>
+      <path d="M695.046 489.014C699.515 483.38 706.181 479.592 713.458 479.592C721.134 479.592 727.142 485.692 725.765 493.102C722.473 510.813 712.375 544.008 681.398 581.001C651.607 616.577 603.795 656.118 570.644 684.663C537.493 713.208 475.713 756.025 475.713 752.269C475.713 738.748 485.413 674.173 479.48 652.362C473.546 630.552 426.402 619.201 393.251 600.422C360.1 581.642 320.605 544.558 309.304 506.248C298.012 470.768 300.164 442.784 300.164 442.784H378.52C395.096 442.784 403.383 451.047 413.932 469.827C424.48 488.606 431.344 500.624 468.179 524.663C505.013 548.7 571.446 554.112 618.11 541.189C652.606 531.634 680.241 507.681 695.046 489.014Z" fill="#FE4D01"/>
+      <path d="M976.232 612.724C954.897 612.724 936.494 608.103 921.021 598.861C905.645 589.525 893.776 576.511 885.415 559.819C877.151 543.032 873.018 523.511 873.018 501.255C873.018 478.999 877.151 459.383 885.415 442.408C893.776 425.339 905.405 412.042 920.301 402.517C935.292 392.897 952.783 388.088 972.772 388.088C984.305 388.088 995.693 389.974 1006.94 393.746C1018.18 397.518 1028.42 403.648 1037.64 412.136C1046.87 420.529 1054.22 431.657 1059.7 445.52C1065.17 459.383 1067.91 476.452 1067.91 496.728V510.874H897.236V482.016H1033.32C1033.32 469.757 1030.82 458.817 1025.82 449.198C1020.92 439.579 1013.9 431.987 1004.77 426.423C995.741 420.859 985.073 418.077 972.772 418.077C959.222 418.077 947.497 421.378 937.599 427.979C927.797 434.486 920.253 442.974 914.967 453.442C909.681 463.91 907.038 475.132 907.038 487.109V506.347C907.038 522.757 909.921 536.667 915.688 548.078C921.55 559.394 929.671 568.023 940.05 573.965C950.429 579.811 962.489 582.735 976.232 582.735C985.17 582.735 993.242 581.509 1000.45 579.057C1007.75 576.511 1014.05 572.739 1019.33 567.74C1024.62 562.648 1028.7 556.329 1031.59 548.785L1064.45 557.838C1060.99 568.778 1055.18 578.397 1047.01 586.696C1038.84 594.9 1028.75 601.313 1016.74 605.934C1004.73 610.461 991.224 612.724 976.232 612.724Z" fill="#1C1C1C"/>
+      <path d="M1126.91 390.917L1179.96 479.753L1233.01 390.917H1272.22L1200.72 499.557L1272.22 608.198H1233.01L1179.96 523.888L1126.91 608.198H1087.7L1158.05 499.557L1087.7 390.917H1126.91Z" fill="#1C1C1C"/>
+      <path d="M1373.74 613.29C1359.71 613.29 1346.98 610.697 1335.54 605.51C1324.1 600.229 1315.02 592.637 1308.29 582.735C1301.57 572.739 1298.2 560.667 1298.2 546.522C1298.2 534.073 1300.7 523.982 1305.7 516.249C1310.7 508.422 1317.38 502.292 1325.74 497.86C1334.1 493.427 1343.32 490.127 1353.41 487.958C1363.6 485.694 1373.84 483.903 1384.12 482.582C1397.57 480.885 1408.48 479.612 1416.84 478.763C1425.3 477.82 1431.45 476.264 1435.29 474.095C1439.23 471.926 1441.2 468.153 1441.2 462.778V461.646C1441.2 447.689 1437.31 436.844 1429.53 429.111C1421.84 421.378 1410.16 417.511 1394.5 417.511C1378.26 417.511 1365.52 421.001 1356.3 427.979C1347.07 434.958 1340.59 442.408 1336.84 450.33L1304.55 439.013C1310.31 425.81 1318 415.531 1327.61 408.175C1337.32 400.725 1347.89 395.538 1359.33 392.615C1370.86 389.597 1382.2 388.088 1393.35 388.088C1400.46 388.088 1408.63 388.937 1417.85 390.634C1427.17 392.237 1436.16 395.585 1444.81 400.678C1453.55 405.77 1460.81 413.456 1466.58 423.735C1472.34 434.015 1475.22 447.783 1475.22 465.041V608.198H1441.2V578.774H1439.47C1437.17 583.489 1433.32 588.535 1427.94 593.91C1422.56 599.286 1415.4 603.859 1406.46 607.632C1397.53 611.404 1386.62 613.29 1373.74 613.29ZM1378.93 583.301C1392.38 583.301 1403.72 580.707 1412.95 575.521C1422.27 570.334 1429.29 563.638 1434 555.433C1438.8 547.229 1441.2 538.6 1441.2 529.547V498.991C1439.76 500.689 1436.59 502.245 1431.69 503.66C1426.88 504.98 1421.31 506.159 1414.97 507.196C1408.72 508.139 1402.62 508.988 1396.66 509.742C1390.8 510.402 1386.04 510.968 1382.39 511.44C1373.55 512.571 1365.28 514.41 1357.6 516.957C1350 519.409 1343.85 523.134 1339.14 528.132C1334.53 533.036 1332.22 539.732 1332.22 548.219C1332.22 559.819 1336.6 568.589 1345.34 574.53C1354.18 580.377 1365.38 583.301 1378.93 583.301Z" fill="#1C1C1C"/>
+      <path d="M1525.14 608.198V390.917H1558.01V424.867H1560.89C1565.5 413.268 1572.95 404.261 1583.23 397.849C1593.52 391.341 1605.87 388.088 1620.28 388.088C1634.89 388.088 1647.05 391.341 1656.75 397.849C1666.55 404.261 1674.19 413.268 1679.67 424.867H1681.98C1687.65 413.645 1696.15 404.733 1707.49 398.131C1718.83 391.436 1732.43 388.088 1748.29 388.088C1768.09 388.088 1784.28 394.171 1796.87 406.336C1809.46 418.407 1815.75 437.221 1815.75 462.778V608.198H1781.73V462.778C1781.73 446.746 1777.26 435.288 1768.33 428.404C1759.39 421.519 1748.87 418.077 1736.76 418.077C1721.19 418.077 1709.13 422.698 1700.57 431.94C1692.02 441.088 1687.75 452.687 1687.75 466.739V608.198H1653.15V459.383C1653.15 447.029 1649.06 437.08 1640.9 429.535C1632.73 421.896 1622.2 418.077 1609.33 418.077C1600.48 418.077 1592.22 420.388 1584.53 425.009C1576.94 429.63 1570.79 436.042 1566.08 444.247C1561.47 452.357 1559.16 461.741 1559.16 472.397V608.198H1525.14Z" fill="#1C1C1C"/>
+      <path d="M2005.32 519.362V390.917H2039.34V608.198H2005.32V571.418H2003.01C1997.82 582.452 1989.75 591.835 1978.79 599.569C1967.84 607.207 1954 611.027 1937.28 611.027C1923.44 611.027 1911.14 608.056 1900.37 602.115C1889.61 596.079 1881.15 587.026 1875 574.955C1868.85 562.789 1865.78 547.465 1865.78 528.981V390.917H1899.8V526.717C1899.8 542.561 1904.31 555.198 1913.35 564.628C1922.48 574.059 1934.11 578.774 1948.23 578.774C1956.69 578.774 1965.29 576.652 1974.04 572.409C1982.88 568.165 1990.28 561.658 1996.24 552.887C2002.29 544.117 2005.32 532.942 2005.32 519.362Z" fill="#1C1C1C"/>
+      <path d="M2246.31 439.579L2215.75 448.066C2213.83 443.068 2210.99 438.211 2207.24 433.496C2203.59 428.686 2198.59 424.726 2192.25 421.614C2185.91 418.501 2177.79 416.945 2167.89 416.945C2154.34 416.945 2143.05 420.01 2134.01 426.14C2125.08 432.176 2120.61 439.862 2120.61 449.198C2120.61 457.497 2123.68 464.051 2129.83 468.861C2135.98 473.67 2145.59 477.678 2158.66 480.885L2191.53 488.806C2211.33 493.522 2226.08 500.736 2235.79 510.45C2245.49 520.069 2250.34 532.47 2250.34 547.653C2250.34 560.102 2246.69 571.23 2239.39 581.037C2232.18 590.845 2222.09 598.578 2209.12 604.237C2196.14 609.895 2181.06 612.724 2163.85 612.724C2141.27 612.724 2122.58 607.915 2107.78 598.295C2092.98 588.676 2083.61 574.625 2079.67 556.141L2111.96 548.219C2115.03 559.913 2120.85 568.683 2129.4 574.53C2138.05 580.377 2149.34 583.301 2163.28 583.301C2179.13 583.301 2191.72 580 2201.04 573.399C2210.46 566.703 2215.17 558.687 2215.17 549.351C2215.17 541.806 2212.48 535.488 2207.1 530.395C2201.72 525.208 2193.45 521.342 2182.3 518.796L2145.4 510.308C2125.12 505.593 2110.23 498.284 2100.71 488.382C2091.3 478.386 2086.59 465.89 2086.59 450.896C2086.59 438.636 2090.09 427.791 2097.11 418.36C2104.22 408.929 2113.88 401.526 2126.08 396.151C2138.39 390.776 2152.32 388.088 2167.89 388.088C2189.8 388.088 2207 392.803 2219.5 402.234C2232.09 411.664 2241.02 424.113 2246.31 439.579Z" fill="#1C1C1C"/>
+    </svg>
+    <div class="meta">Итоги после стратсессии · 27 мая → 15 июня 2026</div>
+  </div>
+
+  <h1>Работаем по <span class="ac">приоритетам</span> стратсессии</h1>
+  <p class="lead">На стратсессии мы разложили компанию на сильные стороны, проблемы и открытые вопросы и расставили приоритеты. Ниже — карта приоритетов и то, что уже сделали агенты изменений по каждому пункту.</p>
+
+  <!-- ===== PRIORITY MATRIX ===== -->
+  <div class="section-title">
+    <span class="bar"></span><h2>Карта приоритетов</h2>
+    <span class="hint">Приоритет 10 — самый высокий · подсвечены пункты, по которым уже есть результат</span>
+  </div>
+
+  <div class="matrix">
+    <!-- PLUS -->
+    <div class="col col-plus">
+      <div class="col-head"><div class="col-sign">+</div><div class="name">Сильные стороны<small>что у нас уже работает</small></div></div>
+      <div class="col-body">
+        <div class="item p-high"><div class="pr">10</div><div class="txt">Большая база постоянных клиентов</div></div>
+        <div class="item p-high"><div class="pr">9</div><div class="txt">Масштабируемая и сходящаяся бизнес-модель</div></div>
+        <div class="item done p-high"><div class="pr">8</div><div class="txt">Скорость принятия решений</div><div class="tick">✓ результат</div></div>
+        <div class="item done p-high"><div class="pr">7</div><div class="txt">Устойчивые и масштабируемые процессы сопровождения клиентов</div><div class="tick">✓ результат</div></div>
+        <div class="item p-high"><div class="pr">6</div><div class="txt">Команда профессионалов</div></div>
+        <div class="item dim"><div class="pr">5</div><div class="txt">Временный эксклюзив на ЕБС + ФСТЭК</div></div>
+        <div class="item dim"><div class="pr">4</div><div class="txt">Амбициозность</div></div>
+        <div class="item dim"><div class="pr">3</div><div class="txt">Собственное ПО</div></div>
+        <div class="item dim"><div class="pr">2</div><div class="txt">Бренд</div></div>
+        <div class="item dim"><div class="pr">1</div><div class="txt">Доступ к сильным стажёрам (МФТИ, УрФУ, ВШЭ)</div></div>
+      </div>
+      <div class="col-foot">+ ещё 11 пунктов без приоритета (растущий рынок, антихрупкость, аппетит к риску и др.)</div>
+    </div>
+
+    <!-- MINUS -->
+    <div class="col col-minus">
+      <div class="col-head"><div class="col-sign">–</div><div class="name">Проблемы<small>что мешает расти</small></div></div>
+      <div class="col-body">
+        <div class="item done p-high"><div class="pr">10</div><div class="txt">Техническая нестабильность</div><div class="tick">✓ результат</div></div>
+        <div class="item done p-high"><div class="pr">9</div><div class="txt">Информационная безопасность</div><div class="tick">✓ результат</div></div>
+        <div class="item done p-high"><div class="pr">8</div><div class="txt">Размазывание ответственности или её отсутствие</div><div class="tick">✓ результат</div></div>
+        <div class="item p-high"><div class="pr">7</div><div class="txt">Legacy</div></div>
+        <div class="item p-high"><div class="pr">6</div><div class="txt">Нет «резервов» для роста</div></div>
+        <div class="item dim"><div class="pr">5</div><div class="txt">100+ часов в трекере, ½ команды, удобное хранилище</div></div>
+        <div class="item dim"><div class="pr">4</div><div class="txt">Нет управляемости для принятия решений / не вижу данных</div></div>
+        <div class="item done"><div class="pr">2</div><div class="txt">Скрытые конфликты</div><div class="tick">✓ результат</div></div>
+        <div class="item dim"><div class="pr">1</div><div class="txt">Нет PR и маркетинговой стратегии</div></div>
+      </div>
+      <div class="col-foot">+ ещё 11 пунктов без приоритета (риски РИД, нет оргструктуры, культура постановки задач и др.)</div>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div class="col col-q">
+      <div class="col-head"><div class="col-sign">?</div><div class="name">Открытые вопросы<small>что предстоит решить</small></div></div>
+      <div class="col-body">
+        <div class="item"><div class="pr">3</div><div class="txt">Пересмотр продуктовой линейки</div></div>
+        <div class="item done dim" style="opacity:1;background:var(--orange-bg);border-color:var(--orange-border);"><div class="pr" style="background:var(--gray2);color:#fff;border:none;">?</div><div class="txt" style="font-weight:600;">Много топов?</div><div class="tick">✓ результат</div></div>
+        <div class="item dim"><div class="pr">—</div><div class="txt">Уникальность специалистов («эффект» Ангелины)</div></div>
+        <div class="item dim"><div class="pr">—</div><div class="txt">Закрыть ИТ-разработку / архитектуру проектными методами?</div></div>
+        <div class="item dim"><div class="pr">—</div><div class="txt">Реализм внешней и внутренней dev-team</div></div>
+        <div class="item dim"><div class="pr">—</div><div class="txt">Слабые SLA в горизонте?</div></div>
+        <div class="item dim"><div class="pr">—</div><div class="txt">GR-зависимость</div></div>
+        <div class="item dim"><div class="pr">—</div><div class="txt">Прокторы и Служба заботы не 24/7</div></div>
+      </div>
+      <div class="col-foot">+ ещё пункты без приоритета (защита бренда, многозадачность, дистант и др.)</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="sw swd"></span>Есть результат — проработали</span>
+    <span><span class="sw swh"></span>Высокий приоритет</span>
+    <span><span class="sw swn"></span>Снято с приоритета</span>
+  </div>
+
+  <!-- ===== RESULTS ===== -->
+  <div class="section-title">
+    <span class="bar"></span><h2>Что сделали по каждому пункту</h2>
+    <span class="hint">8 направлений · команда агентов изменений</span>
+  </div>
+
+  <div class="results">
+
+    <div class="res">
+      <div class="rhead"><div class="rnum">1</div><div class="rtitle">Бекофис</div><span class="tag">+ процессы</span></div>
+      <ul>
+        <li>Бекофис пересобран: выстраиваются процессы, появилась прозрачность в коммуникации</li>
+        <li>Юристы тесно работают со смежными отделами и погружаются в продукт</li>
+      </ul>
+    </div>
+
+    <div class="res">
+      <div class="rhead"><div class="rnum">2</div><div class="rtitle">Информационная безопасность</div><span class="tag tminus">– приоритет 9</span></div>
+      <ul>
+        <li>Налаживается работа внутри компании в части ПДн</li>
+        <li>Обновляются пользовательские соглашения и позиция компании к обработке данных</li>
+        <li>Подготовлены скрипты для отдела продаж — как отвечать на сложные вопросы</li>
+        <li>Сформулирована позиция по ИБ и аттестации для запросов клиентов</li>
+      </ul>
+    </div>
+
+    <div class="res wide">
+      <div class="rhead"><div class="rnum">3</div><div class="rtitle">Техническая стабильность</div><span class="tag tminus">– приоритет 10</span></div>
+      <ul>
+        <li>Раньше за этим стояло: продукт может упасть в любой момент. Проведён аудит продукта, выявлены уязвимости</li>
+        <li>Подготовлены дорожные карты сотрудников, в которые вшиты результаты устранения уязвимостей</li>
+        <li>Поддержанием работы продукта занимается трио: Техлид + Продакт + PM</li>
+        <li>Появилось планирование нагрузок, выстроен процесс нагрузочного тестирования внутри разработки</li>
+      </ul>
+      <span class="metric">★ За период ЕБС упало всего 1 раз</span>
+    </div>
+
+    <div class="res">
+      <div class="rhead"><div class="rnum">4</div><div class="rtitle">Зоны ответственности</div><span class="tag tminus">– приоритет 8</span></div>
+      <ul>
+        <li>Проведены встречи 1:1 с представителями ТОПов</li>
+        <li>Зафиксированы зоны ответственности</li>
+        <li>По части сотрудников подготовлены грейды</li>
+      </ul>
+    </div>
+
+    <div class="res">
+      <div class="rhead"><div class="rnum">5</div><div class="rtitle">Скорость принятия решений</div><span class="tag">+ приоритет 8</span></div>
+      <ul>
+        <li>Появились МЧД и токены для подписания договоров</li>
+        <li>Решения и сделки перестали упираться в одного человека</li>
+      </ul>
+    </div>
+
+    <div class="res">
+      <div class="rhead"><div class="rnum">6</div><div class="rtitle">Сопровождение клиентов</div><span class="tag">+ приоритет 7</span></div>
+      <ul>
+        <li>Усилен отдел продаж под масштабируемые процессы сопровождения</li>
+        <li>Нанят РОП, 5 МАПов и аккаунт-менеджер</li>
+      </ul>
+      <span class="metric">★ +7 человек в продажи</span>
+    </div>
+
+    <div class="res">
+      <div class="rhead"><div class="rnum">7</div><div class="rtitle">Скрытые конфликты</div><span class="tag tminus">– приоритет 2</span></div>
+      <ul>
+        <li>Проведён онбординг юридического отдела</li>
+        <li>Усилено информирование: регулярные планёрки</li>
+        <li>Повестки в чате «Экзамус. Топы»</li>
+      </ul>
+    </div>
+
+    <div class="res">
+      <div class="rhead"><div class="rnum">8</div><div class="rtitle">Команда ТОПов</div><span class="tag tq">? много топов</span></div>
+      <ul>
+        <li>Команда руководителей пересобрана под новые задачи и зоны ответственности</li>
+      </ul>
+      <span class="metric">★ Было 9 → стало 7</span>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div><span class="dot"></span>Работаем по приоритетам стратсессии</div>
+    <div>Examus · внутренняя встреча · 15 июня 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
