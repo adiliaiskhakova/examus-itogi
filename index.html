@@ -1,316 +1,179 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Экзамус — Итоги работы по приоритетам</title>
+<meta charset="utf-8">
+<title>Дашборд: переоценки и паузы — Спринт 12</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-  :root{
-    --orange:#FE4D01; --ink:#1C1C1C; --white:#FFFFFF;
-    --badge-bg:#FFDCDB; --gray:#6B6D7A; --gray2:#949494;
-    --border:#E2E2E2; --soft:#F1F1F1; --orange-bg:#FFFBF8; --orange-border:#FFE1CC;
-    --red:#FF1913; --red-bg:#FFFAFA;
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    margin: 0; padding: 32px;
+    background: #FAFAFA;
+    color: #1C1C1C;
   }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{
-    font-family:'Inter',-apple-system,system-ui,sans-serif;
-    color:var(--ink); background:#F4F4F6; line-height:1.4;
-    -webkit-font-smoothing:antialiased;
+  h1 { font-size: 24px; margin: 0 0 4px; color: #1C1C1C; }
+  .meta { color: #6B6B6B; font-size: 13px; margin-bottom: 28px; }
+  .badge {
+    display: inline-block;
+    background: #FFDCDB; color: #FE4D01;
+    padding: 4px 10px; border-radius: 4px;
+    font-weight: 600; font-size: 12px;
   }
-  .wrap{max-width:1180px;margin:0 auto;padding:40px 32px 80px;}
-
-  /* header */
-  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;}
-  .top svg{height:34px;width:auto;display:block;}
-  .top .meta{font-size:13px;color:var(--gray);font-weight:600;
-    background:var(--badge-bg);color:var(--orange);padding:8px 16px;border-radius:999px;}
-
-  h1{font-size:38px;font-weight:800;letter-spacing:-1px;line-height:1.05;margin-bottom:10px;}
-  h1 .ac{color:var(--orange);}
-  .lead{font-size:16px;color:var(--gray);max-width:760px;margin-bottom:8px;}
-
-  .section-title{display:flex;align-items:center;gap:12px;margin:46px 0 18px;}
-  .section-title .bar{width:4px;height:26px;border-radius:4px;background:var(--orange);}
-  .section-title h2{font-size:25px;font-weight:800;letter-spacing:-.5px;}
-  .section-title .hint{font-size:13px;color:var(--gray2);font-weight:500;margin-left:auto;}
-
-  /* priority matrix */
-  .matrix{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;}
-  .col{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;}
-  .col-head{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--soft);}
-  .col-sign{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
-    font-size:20px;font-weight:800;color:#fff;line-height:1;}
-  .col-plus .col-sign{background:var(--orange);}
-  .col-minus .col-sign{background:var(--ink);}
-  .col-q .col-sign{background:var(--gray2);}
-  .col-head .name{font-size:14px;font-weight:800;}
-  .col-head .name small{display:block;font-size:11px;font-weight:600;color:var(--gray2);}
-
-  .col-body{padding:10px;display:flex;flex-direction:column;gap:6px;}
-  .item{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;border-radius:6px;background:#FAFAFB;border:1px solid #EEE;}
-  .item .pr{flex:none;min-width:26px;height:26px;border-radius:6px;background:var(--soft);color:var(--gray);
-    font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;}
-  .item .txt{font-size:12.5px;line-height:1.3;padding-top:3px;}
-  /* high priority emphasis */
-  .item.p-high .pr{background:var(--ink);color:#fff;}
-  .col-minus .item.p-high .pr{background:var(--ink);}
-  .col-plus .item.p-high .pr{background:var(--orange);}
-  /* worked-on */
-  .item.done{background:var(--orange-bg);border-color:var(--orange-border);}
-  .item.done .txt{font-weight:600;}
-  /* в работе — диагональная штриховка */
-  .item.wip-item{
-    background:repeating-linear-gradient(45deg,#FFFBF8,#FFFBF8 7px,#FFEFE4 7px,#FFEFE4 14px);
-    border-color:var(--orange-border);
+  .kpi-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px; margin-bottom: 32px;
   }
-  .item .tick{flex:none;margin-left:auto;color:var(--orange);font-weight:600;font-size:10px;
-    letter-spacing:.4px;text-transform:uppercase;align-self:center;
-    padding:3px 9px;border:1px solid var(--orange-border);border-radius:999px;background:var(--white);white-space:nowrap;}
-  .item .tick.wip{color:var(--gray);border-color:var(--border);}
-  /* deprioritized */
-  .item.dim{opacity:.5;}
-  .item.dim .pr{background:transparent;border:1px dashed var(--border);color:var(--gray2);}
-  .col-foot{margin-top:auto;padding:10px 14px;border-top:1px solid var(--soft);font-size:11px;color:var(--gray2);}
-
-  .legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;font-size:12.5px;color:var(--gray);}
-  .legend span{display:flex;align-items:center;gap:7px;}
-  .legend .sw{width:14px;height:14px;border-radius:4px;}
-  .sw.swd{background:var(--orange-bg);border:1px solid var(--orange-border);}
-  .sw.swh{background:var(--ink);}
-  .sw.swn{background:transparent;border:1px dashed var(--border);}
-
-  /* results */
-  .results{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-  .res{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:20px 22px;position:relative;}
-  .res::before{content:'';position:absolute;left:0;top:20px;bottom:20px;width:4px;border-radius:4px;background:var(--orange);}
-  .res .rhead{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
-  .res .rnum{width:34px;height:34px;border-radius:8px;background:var(--orange);color:#fff;
-    font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;}
-  .res .rtitle{font-size:17px;font-weight:800;letter-spacing:-.3px;}
-  .res .tag{font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:999px;background:var(--badge-bg);color:var(--orange);}
-  .res .tag.tminus{background:#EFEFF1;color:var(--ink);}
-  .res .tag.tq{background:#EFEFF1;color:var(--gray);}
-  .res ul{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:4px;}
-  .res li{font-size:13.5px;line-height:1.42;color:#3C3C42;padding-left:21px;position:relative;min-height:15px;}
-  .res li::before{content:'';position:absolute;left:0;top:3px;width:13px;height:13px;
-    background-repeat:no-repeat;background-position:center;background-size:contain;}
-  /* статусы: готово / в процессе / не готово */
-  .res li.s-done::before{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23E5F6EC' stroke='%231FA85A' stroke-width='2'/><path d='M7.5 12.5l3 3 6-6.5' fill='none' stroke='%231FA85A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");}
-  .res li.s-prog::before{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23FFF6CC' stroke='%23E0AF00' stroke-width='2'/><path d='M12 7v5.2l3.3 2' fill='none' stroke='%23E0AF00' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>");}
-  .res li.s-todo::before{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23FFEAE9' stroke='%23FF1913' stroke-width='2'/><path d='M9 9l6 6M15 9l-6 6' fill='none' stroke='%23FF1913' stroke-width='2.2' stroke-linecap='round'/></svg>");}
-
-  /* легенда статусов */
-  .status-legend{display:flex;gap:22px;flex-wrap:wrap;margin:0 0 18px;font-size:13px;color:var(--gray);}
-  .status-legend span{display:flex;align-items:center;gap:8px;font-weight:600;}
-  .status-legend .sd{width:15px;height:15px;background-repeat:no-repeat;background-position:center;background-size:contain;}
-  .sd.g{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23E5F6EC' stroke='%231FA85A' stroke-width='2'/><path d='M7.5 12.5l3 3 6-6.5' fill='none' stroke='%231FA85A' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");}
-  .sd.y{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23FFF6CC' stroke='%23E0AF00' stroke-width='2'/><path d='M12 7v5.2l3.3 2' fill='none' stroke='%23E0AF00' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>");}
-  .sd.r{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10' fill='%23FFEAE9' stroke='%23FF1913' stroke-width='2'/><path d='M9 9l6 6M15 9l-6 6' fill='none' stroke='%23FF1913' stroke-width='2.2' stroke-linecap='round'/></svg>");}
-  .res .metric{display:inline-flex;align-items:center;gap:6px;margin-top:12px;
-    background:var(--badge-bg);color:var(--orange);font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;}
-  .res.wide{grid-column:1 / -1;}
-
-  .foot{margin-top:50px;display:flex;align-items:center;justify-content:space-between;
-    font-size:12px;color:var(--gray2);border-top:1px solid var(--border);padding-top:16px;}
-  .foot .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--orange);margin-right:8px;}
+  .kpi {
+    background: #fff; border: 1px solid #EEE; border-radius: 8px;
+    padding: 16px;
+  }
+  .kpi .label { color: #6B6B6B; font-size: 12px; text-transform: uppercase; }
+  .kpi .value { font-size: 32px; font-weight: 700; color: #1C1C1C; margin-top: 4px; }
+  .kpi.accent .value { color: #FE4D01; }
+  .section {
+    background: #fff; border: 1px solid #EEE; border-radius: 8px;
+    padding: 24px; margin-bottom: 24px;
+  }
+  .section h2 { font-size: 16px; margin: 0 0 16px; color: #1C1C1C; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #EEE; }
+  th { color: #6B6B6B; font-weight: 600; font-size: 11px; text-transform: uppercase; }
+  tr:last-child td { border-bottom: none; }
+  .key { font-family: 'SF Mono', 'Monaco', monospace; color: #FE4D01; font-weight: 600; }
+  .warn { color: #C77700; font-weight: 600; }
+  .ok { color: #548235; }
+  .empty { color: #A0A0A0; text-align: center; padding: 32px; font-style: italic; }
+  .chart-wrap { height: 280px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+  footer { color: #A0A0A0; font-size: 11px; text-align: center; margin-top: 24px; }
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <div class="top">
-    <svg viewBox="0 0 2550 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M565.337 521.633C602.783 521.633 633.139 491.368 633.139 454.034C633.139 416.699 602.783 386.434 565.337 386.434C527.891 386.434 497.535 416.699 497.535 454.034C497.535 491.368 527.891 521.633 565.337 521.633Z" fill="#1C1C1C"/>
-      <path d="M447.827 343.658C425.352 352.145 412.269 369.149 405.346 385.744C398.105 403.101 382.662 419.527 363.55 419.527H300.154C300.908 417.022 298.355 401.965 305.428 364.691C315.976 309.104 357.369 275.593 393.579 260.277C426.684 246.275 498.306 238.493 579.675 265.535C661.046 292.578 701.731 381.217 715.293 412.015C728.855 442.813 711.947 450.673 701.731 451.076C679.783 451.942 661.157 398.807 600.772 364.691C555.566 339.151 497.552 324.878 447.827 343.658Z" fill="#FE4D01"/>
-      <path d="M695.046 489.014C699.515 483.38 706.181 479.592 713.458 479.592C721.134 479.592 727.142 485.692 725.765 493.102C722.473 510.813 712.375 544.008 681.398 581.001C651.607 616.577 603.795 656.118 570.644 684.663C537.493 713.208 475.713 756.025 475.713 752.269C475.713 738.748 485.413 674.173 479.48 652.362C473.546 630.552 426.402 619.201 393.251 600.422C360.1 581.642 320.605 544.558 309.304 506.248C298.012 470.768 300.164 442.784 300.164 442.784H378.52C395.096 442.784 403.383 451.047 413.932 469.827C424.48 488.606 431.344 500.624 468.179 524.663C505.013 548.7 571.446 554.112 618.11 541.189C652.606 531.634 680.241 507.681 695.046 489.014Z" fill="#FE4D01"/>
-      <path d="M976.232 612.724C954.897 612.724 936.494 608.103 921.021 598.861C905.645 589.525 893.776 576.511 885.415 559.819C877.151 543.032 873.018 523.511 873.018 501.255C873.018 478.999 877.151 459.383 885.415 442.408C893.776 425.339 905.405 412.042 920.301 402.517C935.292 392.897 952.783 388.088 972.772 388.088C984.305 388.088 995.693 389.974 1006.94 393.746C1018.18 397.518 1028.42 403.648 1037.64 412.136C1046.87 420.529 1054.22 431.657 1059.7 445.52C1065.17 459.383 1067.91 476.452 1067.91 496.728V510.874H897.236V482.016H1033.32C1033.32 469.757 1030.82 458.817 1025.82 449.198C1020.92 439.579 1013.9 431.987 1004.77 426.423C995.741 420.859 985.073 418.077 972.772 418.077C959.222 418.077 947.497 421.378 937.599 427.979C927.797 434.486 920.253 442.974 914.967 453.442C909.681 463.91 907.038 475.132 907.038 487.109V506.347C907.038 522.757 909.921 536.667 915.688 548.078C921.55 559.394 929.671 568.023 940.05 573.965C950.429 579.811 962.489 582.735 976.232 582.735C985.17 582.735 993.242 581.509 1000.45 579.057C1007.75 576.511 1014.05 572.739 1019.33 567.74C1024.62 562.648 1028.7 556.329 1031.59 548.785L1064.45 557.838C1060.99 568.778 1055.18 578.397 1047.01 586.696C1038.84 594.9 1028.75 601.313 1016.74 605.934C1004.73 610.461 991.224 612.724 976.232 612.724Z" fill="#1C1C1C"/>
-      <path d="M1126.91 390.917L1179.96 479.753L1233.01 390.917H1272.22L1200.72 499.557L1272.22 608.198H1233.01L1179.96 523.888L1126.91 608.198H1087.7L1158.05 499.557L1087.7 390.917H1126.91Z" fill="#1C1C1C"/>
-      <path d="M1373.74 613.29C1359.71 613.29 1346.98 610.697 1335.54 605.51C1324.1 600.229 1315.02 592.637 1308.29 582.735C1301.57 572.739 1298.2 560.667 1298.2 546.522C1298.2 534.073 1300.7 523.982 1305.7 516.249C1310.7 508.422 1317.38 502.292 1325.74 497.86C1334.1 493.427 1343.32 490.127 1353.41 487.958C1363.6 485.694 1373.84 483.903 1384.12 482.582C1397.57 480.885 1408.48 479.612 1416.84 478.763C1425.3 477.82 1431.45 476.264 1435.29 474.095C1439.23 471.926 1441.2 468.153 1441.2 462.778V461.646C1441.2 447.689 1437.31 436.844 1429.53 429.111C1421.84 421.378 1410.16 417.511 1394.5 417.511C1378.26 417.511 1365.52 421.001 1356.3 427.979C1347.07 434.958 1340.59 442.408 1336.84 450.33L1304.55 439.013C1310.31 425.81 1318 415.531 1327.61 408.175C1337.32 400.725 1347.89 395.538 1359.33 392.615C1370.86 389.597 1382.2 388.088 1393.35 388.088C1400.46 388.088 1408.63 388.937 1417.85 390.634C1427.17 392.237 1436.16 395.585 1444.81 400.678C1453.55 405.77 1460.81 413.456 1466.58 423.735C1472.34 434.015 1475.22 447.783 1475.22 465.041V608.198H1441.2V578.774H1439.47C1437.17 583.489 1433.32 588.535 1427.94 593.91C1422.56 599.286 1415.4 603.859 1406.46 607.632C1397.53 611.404 1386.62 613.29 1373.74 613.29ZM1378.93 583.301C1392.38 583.301 1403.72 580.707 1412.95 575.521C1422.27 570.334 1429.29 563.638 1434 555.433C1438.8 547.229 1441.2 538.6 1441.2 529.547V498.991C1439.76 500.689 1436.59 502.245 1431.69 503.66C1426.88 504.98 1421.31 506.159 1414.97 507.196C1408.72 508.139 1402.62 508.988 1396.66 509.742C1390.8 510.402 1386.04 510.968 1382.39 511.44C1373.55 512.571 1365.28 514.41 1357.6 516.957C1350 519.409 1343.85 523.134 1339.14 528.132C1334.53 533.036 1332.22 539.732 1332.22 548.219C1332.22 559.819 1336.6 568.589 1345.34 574.53C1354.18 580.377 1365.38 583.301 1378.93 583.301Z" fill="#1C1C1C"/>
-      <path d="M1525.14 608.198V390.917H1558.01V424.867H1560.89C1565.5 413.268 1572.95 404.261 1583.23 397.849C1593.52 391.341 1605.87 388.088 1620.28 388.088C1634.89 388.088 1647.05 391.341 1656.75 397.849C1666.55 404.261 1674.19 413.268 1679.67 424.867H1681.98C1687.65 413.645 1696.15 404.733 1707.49 398.131C1718.83 391.436 1732.43 388.088 1748.29 388.088C1768.09 388.088 1784.28 394.171 1796.87 406.336C1809.46 418.407 1815.75 437.221 1815.75 462.778V608.198H1781.73V462.778C1781.73 446.746 1777.26 435.288 1768.33 428.404C1759.39 421.519 1748.87 418.077 1736.76 418.077C1721.19 418.077 1709.13 422.698 1700.57 431.94C1692.02 441.088 1687.75 452.687 1687.75 466.739V608.198H1653.15V459.383C1653.15 447.029 1649.06 437.08 1640.9 429.535C1632.73 421.896 1622.2 418.077 1609.33 418.077C1600.48 418.077 1592.22 420.388 1584.53 425.009C1576.94 429.63 1570.79 436.042 1566.08 444.247C1561.47 452.357 1559.16 461.741 1559.16 472.397V608.198H1525.14Z" fill="#1C1C1C"/>
-      <path d="M2005.32 519.362V390.917H2039.34V608.198H2005.32V571.418H2003.01C1997.82 582.452 1989.75 591.835 1978.79 599.569C1967.84 607.207 1954 611.027 1937.28 611.027C1923.44 611.027 1911.14 608.056 1900.37 602.115C1889.61 596.079 1881.15 587.026 1875 574.955C1868.85 562.789 1865.78 547.465 1865.78 528.981V390.917H1899.8V526.717C1899.8 542.561 1904.31 555.198 1913.35 564.628C1922.48 574.059 1934.11 578.774 1948.23 578.774C1956.69 578.774 1965.29 576.652 1974.04 572.409C1982.88 568.165 1990.28 561.658 1996.24 552.887C2002.29 544.117 2005.32 532.942 2005.32 519.362Z" fill="#1C1C1C"/>
-      <path d="M2246.31 439.579L2215.75 448.066C2213.83 443.068 2210.99 438.211 2207.24 433.496C2203.59 428.686 2198.59 424.726 2192.25 421.614C2185.91 418.501 2177.79 416.945 2167.89 416.945C2154.34 416.945 2143.05 420.01 2134.01 426.14C2125.08 432.176 2120.61 439.862 2120.61 449.198C2120.61 457.497 2123.68 464.051 2129.83 468.861C2135.98 473.67 2145.59 477.678 2158.66 480.885L2191.53 488.806C2211.33 493.522 2226.08 500.736 2235.79 510.45C2245.49 520.069 2250.34 532.47 2250.34 547.653C2250.34 560.102 2246.69 571.23 2239.39 581.037C2232.18 590.845 2222.09 598.578 2209.12 604.237C2196.14 609.895 2181.06 612.724 2163.85 612.724C2141.27 612.724 2122.58 607.915 2107.78 598.295C2092.98 588.676 2083.61 574.625 2079.67 556.141L2111.96 548.219C2115.03 559.913 2120.85 568.683 2129.4 574.53C2138.05 580.377 2149.34 583.301 2163.28 583.301C2179.13 583.301 2191.72 580 2201.04 573.399C2210.46 566.703 2215.17 558.687 2215.17 549.351C2215.17 541.806 2212.48 535.488 2207.1 530.395C2201.72 525.208 2193.45 521.342 2182.3 518.796L2145.4 510.308C2125.12 505.593 2110.23 498.284 2100.71 488.382C2091.3 478.386 2086.59 465.89 2086.59 450.896C2086.59 438.636 2090.09 427.791 2097.11 418.36C2104.22 408.929 2113.88 401.526 2126.08 396.151C2138.39 390.776 2152.32 388.088 2167.89 388.088C2189.8 388.088 2207 392.803 2219.5 402.234C2232.09 411.664 2241.02 424.113 2246.31 439.579Z" fill="#1C1C1C"/>
-    </svg>
-    <div class="meta">Итоги после стратсессии · 27 мая → 15 июня 2026</div>
-  </div>
-
-  <h1>Работаем по <span class="ac">приоритетам</span> стратсессии</h1>
-  <p class="lead">На стратсессии мы разложили компанию на сильные стороны, проблемы и открытые вопросы и расставили приоритеты. Ниже — карта приоритетов и то, что уже сделали агенты изменений по каждому пункту.</p>
-
-  <!-- ===== PRIORITY MATRIX ===== -->
-  <div class="section-title">
-    <span class="bar"></span><h2>Карта приоритетов</h2>
-    <span class="hint">Приоритет 10 — самый высокий · подсвечены пункты, по которым уже есть результат</span>
-  </div>
-
-  <div class="matrix">
-    <!-- PLUS -->
-    <div class="col col-plus">
-      <div class="col-head"><div class="col-sign">+</div><div class="name">Сильные стороны<small>что у нас уже работает</small></div></div>
-      <div class="col-body">
-        <div class="item done wip-item p-high"><div class="pr">10</div><div class="txt">Большая база постоянных клиентов</div><div class="tick wip">в работе</div></div>
-        <div class="item done wip-item p-high"><div class="pr">9</div><div class="txt">Масштабируемая и сходящаяся бизнес-модель</div><div class="tick wip">в работе</div></div>
-        <div class="item done p-high"><div class="pr">8</div><div class="txt">Скорость принятия решений</div><div class="tick">результат</div></div>
-        <div class="item done p-high"><div class="pr">7</div><div class="txt">Устойчивые и масштабируемые процессы сопровождения клиентов</div><div class="tick">результат</div></div>
-        <div class="item done p-high"><div class="pr">6</div><div class="txt">Команда профессионалов</div><div class="tick">результат</div></div>
-        <div class="item dim"><div class="pr">5</div><div class="txt">Временный эксклюзив на ЕБС + ФСТЭК</div></div>
-        <div class="item dim"><div class="pr">4</div><div class="txt">Амбициозность</div></div>
-        <div class="item dim"><div class="pr">3</div><div class="txt">Собственное ПО</div></div>
-        <div class="item dim"><div class="pr">2</div><div class="txt">Бренд</div></div>
-        <div class="item dim"><div class="pr">1</div><div class="txt">Доступ к сильным стажёрам (МФТИ, УрФУ, ВШЭ)</div></div>
-      </div>
-      <div class="col-foot">+ ещё 11 пунктов без приоритета (растущий рынок, антихрупкость, аппетит к риску и др.)</div>
-    </div>
-
-    <!-- MINUS -->
-    <div class="col col-minus">
-      <div class="col-head"><div class="col-sign">–</div><div class="name">Проблемы<small>что мешает расти</small></div></div>
-      <div class="col-body">
-        <div class="item done p-high"><div class="pr">10</div><div class="txt">Техническая нестабильность</div><div class="tick">результат</div></div>
-        <div class="item done p-high"><div class="pr">9</div><div class="txt">Информационная безопасность</div><div class="tick">результат</div></div>
-        <div class="item done p-high"><div class="pr">8</div><div class="txt">Размазывание ответственности или её отсутствие</div><div class="tick">результат</div></div>
-        <div class="item done wip-item p-high"><div class="pr">7</div><div class="txt">Legacy</div><div class="tick wip">в работе</div></div>
-        <div class="item done wip-item p-high"><div class="pr">6</div><div class="txt">Нет «резервов» для роста</div><div class="tick wip">в работе</div></div>
-        <div class="item dim"><div class="pr">5</div><div class="txt">100+ часов в трекере, ½ команды, удобное хранилище</div></div>
-        <div class="item dim"><div class="pr">4</div><div class="txt">Нет управляемости для принятия решений / не вижу данных</div></div>
-        <div class="item done"><div class="pr">2</div><div class="txt">Скрытые конфликты</div><div class="tick">результат</div></div>
-        <div class="item dim"><div class="pr">1</div><div class="txt">Нет PR и маркетинговой стратегии</div></div>
-      </div>
-      <div class="col-foot">+ ещё 11 пунктов без приоритета (риски РИД, нет оргструктуры, культура постановки задач и др.)</div>
-    </div>
-
-    <!-- QUESTIONS -->
-    <div class="col col-q">
-      <div class="col-head"><div class="col-sign">?</div><div class="name">Открытые вопросы<small>что предстоит решить</small></div></div>
-      <div class="col-body">
-        <div class="item"><div class="pr">3</div><div class="txt">Пересмотр продуктовой линейки</div></div>
-        <div class="item done dim" style="opacity:1;background:var(--orange-bg);border-color:var(--orange-border);"><div class="pr" style="background:var(--gray2);color:#fff;border:none;">?</div><div class="txt" style="font-weight:600;">Много топов?</div><div class="tick">результат</div></div>
-        <div class="item dim"><div class="pr">—</div><div class="txt">Уникальность специалистов («эффект» Ангелины)</div></div>
-        <div class="item dim"><div class="pr">—</div><div class="txt">Закрыть ИТ-разработку / архитектуру проектными методами?</div></div>
-        <div class="item dim"><div class="pr">—</div><div class="txt">Реализм внешней и внутренней dev-team</div></div>
-        <div class="item dim"><div class="pr">—</div><div class="txt">Слабые SLA в горизонте?</div></div>
-        <div class="item dim"><div class="pr">—</div><div class="txt">GR-зависимость</div></div>
-        <div class="item dim"><div class="pr">—</div><div class="txt">Прокторы и Служба заботы не 24/7</div></div>
-      </div>
-      <div class="col-foot">+ ещё пункты без приоритета (защита бренда, многозадачность, дистант и др.)</div>
-    </div>
-  </div>
-
-  <!-- ===== RESULTS ===== -->
-  <div class="section-title">
-    <span class="bar"></span><h2>Что сделали по каждому пункту</h2>
-    <span class="hint">11 направлений · команда агентов изменений</span>
-  </div>
-
-  <div class="status-legend">
-    <span><span class="sd g"></span>Готово — есть артефакт</span>
-    <span><span class="sd y"></span>В процессе</span>
-  </div>
-
-  <div class="results">
-
-    <div class="res">
-      <div class="rhead"><div class="rnum">1</div><div class="rtitle">Техническая стабильность</div><span class="tag tminus">– приоритет 10</span></div>
-      <ul>
-        <li class="s-done">Проведён аудит продукта, выявлены уязвимости</li>
-        <li class="s-done">Подготовлены дорожные карты сотрудников, в которые вшиты результаты устранения уязвимостей</li>
-        <li class="s-done">Поддержанием работы продукта занимается трио: Техлид + Продакт + PM</li>
-        <li class="s-done">Появилось планирование нагрузок, выстроен процесс нагрузочного тестирования внутри разработки</li>
-      </ul>
-      <span class="metric">★ За период ЕБС упало всего 1 раз</span>
-    </div>
-
-    <div class="res">
-      <div class="rhead"><div class="rnum">2</div><div class="rtitle">Информационная безопасность</div><span class="tag tminus">– приоритет 9</span></div>
-      <ul>
-        <li class="s-done">Осознана проблема в части работы с ПДн</li>
-        <li class="s-done">Найден экспертный консультант в части ИБ и работы с ПДн</li>
-        <li class="s-prog">Ведутся переговоры с КИТ по консультированию</li>
-        <li class="s-prog">Обновляются пользовательские соглашения и позиция компании к обработке данных</li>
-        <li class="s-done">Подготовлены скрипты для отдела продаж — как отвечать на сложные вопросы</li>
-        <li class="s-done">Сформулирована позиция по ИБ и аттестации для запросов клиентов</li>
-      </ul>
-    </div>
-
-    <div class="res">
-      <div class="rhead"><div class="rnum">3</div><div class="rtitle">Скрытые конфликты</div><span class="tag tminus">– приоритет 2</span></div>
-      <ul>
-        <li class="s-done">Проведён онбординг юридического отдела</li>
-        <li class="s-done">Усилено информирование: регулярные планёрки</li>
-        <li class="s-done">Повестки в чате «Экзамус. Топы»</li>
-      </ul>
-    </div>
-
-    <div class="res">
-      <div class="rhead"><div class="rnum">4</div><div class="rtitle">Команда профессионалов</div><span class="tag">+ приоритет 6</span></div>
-      <ul>
-        <li class="s-done">Согласованы бюджеты на командообразующие мероприятия в двух городах: Москва и Екатеринбург</li>
-        <li class="s-prog">Запланирована общая встреча команды в конце года</li>
-      </ul>
-    </div>
-
-    <div class="res">
-      <div class="rhead"><div class="rnum">5</div><div class="rtitle">Сопровождение клиентов</div><span class="tag">+ приоритет 7</span></div>
-      <ul>
-        <li class="s-done">Усилен отдел продаж под масштабируемые процессы сопровождения</li>
-        <li class="s-done">Нанят РОП, 5 МАПов, аккаунт-менеджер и тендерный специалист</li>
-      </ul>
-      <span class="metric">★ +8 человек в продажи</span>
-    </div>
-
-    <div class="res">
-      <div class="rhead"><div class="rnum">6</div><div class="rtitle">Зоны ответственности</div><span class="tag tminus">– приоритет 8</span></div>
-      <ul>
-        <li class="s-done">Проведены встречи 1:1 с ТОПами</li>
-        <li class="s-done">Зафиксированы зоны ответственности</li>
-      </ul>
-    </div>
-
-    <div class="res">
-      <div class="rhead"><div class="rnum">7</div><div class="rtitle">Скорость принятия решений</div><span class="tag">+ приоритет 8</span></div>
-      <ul>
-        <li class="s-done">Появились МЧД и токены для подписания договоров</li>
-        <li class="s-done">Решения и сделки перестали упираться в одного человека</li>
-      </ul>
-    </div>
-
-    <div class="res">
-      <div class="rhead"><div class="rnum">8</div><div class="rtitle">Команда ТОПов</div><span class="tag tq">? много топов</span></div>
-      <ul>
-        <li class="s-prog">Команда руководителей в процессе пересборки под новые задачи и зоны ответственности</li>
-      </ul>
-      <span class="metric">★ Было 8 → сейчас 6</span>
-    </div>
-
-    <div class="res">
-      <div class="rhead"><div class="rnum">9</div><div class="rtitle">База постоянных клиентов</div><span class="tag">+ приоритет 10</span></div>
-      <ul>
-        <li class="s-prog">На этапе проработки</li>
-      </ul>
-    </div>
-
-    <div class="res">
-      <div class="rhead"><div class="rnum">10</div><div class="rtitle">Масштабируемая бизнес-модель</div><span class="tag">+ приоритет 9</span></div>
-      <ul>
-        <li class="s-prog">На этапе проработки</li>
-      </ul>
-    </div>
-
-    <div class="res wide">
-      <div class="rhead"><div class="rnum">11</div><div class="rtitle">Бекофис</div><span class="tag">+ процессы</span></div>
-      <ul>
-        <li class="s-prog">Идёт донастройка процессов, появляется прозрачность в коммуникации</li>
-        <li class="s-done">Юристы тесно работают со смежными отделами и погружаются в продукт</li>
-      </ul>
-    </div>
-
-  </div>
-
-  <div class="foot">
-    <div><span class="dot"></span>Работаем по приоритетам стратсессии</div>
-    <div>Examus · внутренняя встреча · 15 июня 2026</div>
-  </div>
-
+<h1>Переоценки и паузы</h1>
+<div class="meta">
+  <span class="badge">Спринт 12</span>
+  &nbsp; Обновлено: 2026-06-19 06:50
 </div>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="label">Всего задач</div><div class="value">49</div></div>
+  <div class="kpi" style="border-left:3px solid #548235"><div class="label">Закрыто</div><div class="value" style="color:#548235">15</div></div>
+  <div class="kpi" style="border-left:3px solid #C77700"><div class="label">Отменено</div><div class="value" style="color:#C77700">6</div></div>
+  <div class="kpi"><div class="label">В работе / Открыто</div><div class="value">24</div></div>
+  <div class="kpi accent"><div class="label">% выполнено</div><div class="value">31%</div></div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi accent"><div class="label">Переоценок</div><div class="value">36</div></div>
+  <div class="kpi"><div class="label">Уникальных задач с переоценкой</div><div class="value">29</div></div>
+  <div class="kpi accent"><div class="label">На паузе</div><div class="value">4</div></div>
+</div>
+
+<div class="grid-2">
+  <div class="section">
+    <h2>Статусы задач</h2>
+    <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+  </div>
+  <div class="section">
+    <h2>Кто чаще переоценивает</h2>
+    <div class="chart-wrap"><canvas id="byPerson"></canvas></div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="section">
+    <h2>Задачи на паузе — по возрасту</h2>
+    <div class="chart-wrap"><canvas id="pausedAge"></canvas></div>
+  </div>
+  <div class="section">
+    <h2>&nbsp;</h2>
+    <div style="color:#6B6B6B;font-size:13px;line-height:1.5">
+      <p><b>Чтение дашборда:</b></p>
+      <p>• <span style="color:#548235">Зелёные</span> — задачи доведены до конца.</p>
+      <p>• <span style="color:#C77700">Оранжевые</span> — отменены: причины важно разбирать.</p>
+      <p>• Переоценки ×N — переоценили несколько раз. Сигнал к разговору на дейли.</p>
+      <p>• Возраст пауз >5 дней — повод вернуться в бэклог или разобрать.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Переоценки спринта</h2>
+  <table><thead><tr><th>Задача</th><th>Название</th><th>SP</th><th>Исполнитель</th><th>Кто переоценил</th><th>Когда</th></tr></thead><tbody><tr><td class="key">DEV-325</td><td>Блокирование Handoff</td><td>—→1.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-06-19</td></tr><tr><td class="key">DEV-807</td><td>Ресерч Некорректное отображение числа прокторов онлайн</td><td>—→1.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-06-19</td></tr><tr><td class="key">DEV-812</td><td>Правки по лендингу ЕБС</td><td>—→1.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-06-19</td></tr><tr><td class="key">DEV-788</td><td>Поддержка брендирования в SDK</td><td>—→3.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-06-10</td></tr><tr><td class="key">DEV-767</td><td>Запрос Вторая камера, повторный показ QR кода при разрыве</td><td>—→1.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-06-10</td></tr><tr><td class="key">DEV-745</td><td>[Frontend] Показывать остаток часов в прокторинге</td><td>—→1.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-06-10</td></tr><tr><td class="key">DEV-613</td><td>[Ресерч] Добавление поддержки форматирования в билетах при загрузке через Excel</td><td>—→5.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-06-10</td></tr><tr><td class="key">DEV-605</td><td>[Ресерч] Возможность вставлять картинки в билеты</td><td>—→3.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-06-10</td></tr><tr><td class="key">DEV-755</td><td>Добавить текст согласия в чекбокс</td><td>—→1.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-06-01</td></tr><tr><td class="key">DEV-747</td><td>[Баг-репорт] При смене пароля на новый можно поставить тот же</td><td>—→2.0</td><td>Дмитрий Кузнецов</td><td>Артем Кислицын</td><td>2026-05-28</td></tr><tr><td class="key">DEV-737</td><td>[Backend] Добавить остаток часов в прокторинге</td><td>—→3.0</td><td>Дмитрий Кузнецов</td><td>Артем Кислицын</td><td>2026-05-28</td></tr><tr><td class="key">DEV-742</td><td>Обновить чек-боксы на сайте на форме отправки заявки</td><td>—→2.0</td><td>Денис Майнгардт</td><td>Артем Кислицын</td><td>2026-05-28</td></tr><tr><td class="key">DEV-741</td><td>Убрать с сайта баннер в подвале о получении полезных материалов на почту</td><td>—→1.0</td><td>Денис Майнгардт</td><td>Артем Кислицын</td><td>2026-05-28</td></tr><tr><td class="key">DEV-563</td><td>Запрос Разлогинивает проктора из комнаты</td><td>—→3.0</td><td>Павел Григорьев</td><td>Дарья Лебедева</td><td>2026-05-22</td></tr><tr><td class="key">DEV-517</td><td>Провести тестирование способов обхода и зафиксировать их</td><td>—→2.0</td><td>Павел Григорьев</td><td>Дарья Лебедева</td><td>2026-05-22</td></tr><tr><td class="key">DEV-673</td><td>[Backend] Добавить метрики к продукту [CES, NPS] в интерфейсы</td><td>—→3.0</td><td>Дмитрий Кузнецов</td><td>Дарья Лебедева</td><td>2026-05-22</td></tr><tr><td class="key">DEV-683</td><td>Работы по сайту в рамках ПДн <span class="warn">×2</span></td><td>—→1.0 → 1.0→2.0</td><td>Артем Кислицын</td><td>Денис Майнгардт</td><td>2026-05-25</td></tr><tr><td class="key">DEV-684</td><td>Добавить баннер о сборе cookie со ссылкой на политику обработки cookie и создать <span class="warn">×2</span></td><td>—→1.0 → 1.0→2.0</td><td>Денис Майнгардт</td><td>Артем Кислицын</td><td>2026-05-28</td></tr><tr><td class="key">DEV-717</td><td>Изменить текст аллертов</td><td>—→1.0</td><td>Денис Майнгардт</td><td>Артем Кислицын</td><td>2026-05-22</td></tr><tr><td class="key">DEV-686</td><td>Обязательный форсируемый ЕБС</td><td>—→21.0</td><td>Артем Кислицын</td><td>Дарья Лебедева</td><td>2026-05-22</td></tr><tr><td class="key">DEV-698</td><td>[Backend] Нормализация диапазона дат на бекенде</td><td>—→3.0</td><td>Дмитрий Кузнецов</td><td>Артем Кислицын</td><td>2026-05-18</td></tr><tr><td class="key">DEV-689</td><td>[Frontend] Добавить формы CES / NPS на основе готовых компонентов и привязать к  <span class="warn">×5</span></td><td>—→8.0 → 8.0→3.0 → 3.0→8.0 → 8.0→5.0 → 5.0→8.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-05-25</td></tr><tr><td class="key">DEV-629</td><td>Поставить коробку на ОС Астра</td><td>—→8.0</td><td>Георгий Календарев</td><td>Георгий Календарев</td><td>2026-05-14</td></tr><tr><td class="key">DEV-640</td><td>Получение аттестата ФСТЭК</td><td>—→21.0</td><td>Дарья Лебедева</td><td>Дарья Лебедева</td><td>2026-05-13</td></tr><tr><td class="key">DEV-226</td><td>Перенастройка криптоканала для доступа к СМЭВ, ЕСИА и Цифровому профилю</td><td>—→21.0</td><td>Дарья Лебедева</td><td>Дарья Лебедева</td><td>2026-05-13</td></tr><tr><td class="key">DEV-681</td><td>Композиция архитектуры конфигов</td><td>—→3.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-05-13</td></tr><tr><td class="key">DEV-650</td><td>[Баг-репорт/Улучшайзинг] Некорректное поведение селектора дат</td><td>—→1.0</td><td>Павел Григорьев</td><td>Денис Майнгардт</td><td>2026-05-07</td></tr><tr><td class="key">DEV-561</td><td>Провести анализ списывания на ЗБ для YC <span class="warn">×2</span></td><td>—→PT0S → —→1.0</td><td>Денис Майнгардт</td><td>Денис Майнгардт</td><td>2026-06-19</td></tr><tr><td class="key">DEV-721</td><td>Запрос Проблема с регистрацией/мэтчингом в ЕБС - нужно провести диагностику</td><td>—→13.0</td><td>Артем Кислицын</td><td>Денис Майнгардт</td><td>2026-01-20</td></tr></tbody></table>
+</div>
+
+<div class="section">
+  <h2>Задачи на паузе</h2>
+  <table><thead><tr><th>Задача</th><th>Название</th><th>Исполнитель</th><th>Статус</th><th>Дней на паузе</th></tr></thead><tbody><tr><td class="key">DEV-640</td><td>Получение аттестата ФСТЭК</td><td>Дарья Лебедева</td><td>Заблокировано</td><td class="warn">20.6</td></tr><tr><td class="key">DEV-737</td><td>[Backend] Добавить остаток часов в прокторинге</td><td>Дмитрий Кузнецов</td><td>Заблокировано</td><td class="warn">9.8</td></tr><tr><td class="key">DEV-683</td><td>Работы по сайту в рамках ПДн</td><td>Артем Кислицын</td><td>Заблокировано</td><td class="ok">3.7</td></tr><tr><td class="key">DEV-738</td><td>Подготовительные работы для обновления коробки НН</td><td>Георгий Календарев</td><td>Заблокировано</td><td class="ok">3.0</td></tr></tbody></table>
+</div>
+
+<footer>tracker-digest · автоматически генерируется скриптом</footer>
+
+<script>
+const data = {"sprint": "Спринт 12", "total_issues": 49, "reestimations": [{"key": "DEV-717", "title": "Изменить текст аллертов", "assignee": "Денис Майнгардт", "at": "2026-05-22T12:41:00.725+0000", "by": "Артем Кислицын", "from": null, "to": 1.0}, {"key": "DEV-681", "title": "Композиция архитектуры конфигов", "assignee": "Денис Майнгардт", "at": "2026-05-13T10:42:11.884+0000", "by": "Денис Майнгардт", "from": null, "to": 3.0}, {"key": "DEV-561", "title": "Провести анализ списывания на ЗБ для YC", "assignee": "Денис Майнгардт", "at": "2026-02-09T10:50:11.749+0000", "by": "Денис Майнгардт", "from": null, "to": "PT0S"}, {"key": "DEV-561", "title": "Провести анализ списывания на ЗБ для YC", "assignee": "Денис Майнгардт", "at": "2026-06-19T03:57:14.740+0000", "by": "Денис Майнгардт", "from": null, "to": 1.0}, {"key": "DEV-325", "title": "Блокирование Handoff", "assignee": "Денис Майнгардт", "at": "2026-06-19T03:57:01.246+0000", "by": "Денис Майнгардт", "from": null, "to": 1.0}, {"key": "DEV-807", "title": "Ресерч Некорректное отображение числа прокторов онлайн", "assignee": "Денис Майнгардт", "at": "2026-06-19T03:56:40.475+0000", "by": "Денис Майнгардт", "from": null, "to": 1.0}, {"key": "DEV-812", "title": "Правки по лендингу ЕБС", "assignee": "Денис Майнгардт", "at": "2026-06-19T03:56:32.765+0000", "by": "Денис Майнгардт", "from": null, "to": 1.0}, {"key": "DEV-788", "title": "Поддержка брендирования в SDK", "assignee": "Денис Майнгардт", "at": "2026-06-10T07:59:41.007+0000", "by": "Денис Майнгардт", "from": null, "to": 3.0}, {"key": "DEV-767", "title": "Запрос Вторая камера, повторный показ QR кода при разрыве", "assignee": "Денис Майнгардт", "at": "2026-06-10T03:25:18.397+0000", "by": "Денис Майнгардт", "from": null, "to": 1.0}, {"key": "DEV-745", "title": "[Frontend] Показывать остаток часов в прокторинге", "assignee": "Денис Майнгардт", "at": "2026-06-10T03:25:12.256+0000", "by": "Денис Майнгардт", "from": null, "to": 1.0}, {"key": "DEV-650", "title": "[Баг-репорт/Улучшайзинг] Некорректное поведение селектора дат", "assignee": "Павел Григорьев", "at": "2026-05-07T04:23:29.266+0000", "by": "Денис Майнгардт", "from": null, "to": 1.0}, {"key": "DEV-563", "title": "Запрос Разлогинивает проктора из комнаты", "assignee": "Павел Григорьев", "at": "2026-05-22T14:38:34.934+0000", "by": "Дарья Лебедева", "from": null, "to": 3.0}, {"key": "DEV-721", "title": "Запрос Проблема с регистрацией/мэтчингом в ЕБС - нужно провести диагностику", "assignee": "Артем Кислицын", "at": "2026-01-20T07:20:09.190+0000", "by": "Денис Майнгардт", "from": null, "to": 13.0}, {"key": "DEV-629", "title": "Поставить коробку на ОС Астра", "assignee": "Георгий Календарев", "at": "2026-05-14T07:38:28.111+0000", "by": "Георгий Календарев", "from": null, "to": 8.0}, {"key": "DEV-686", "title": "Обязательный форсируемый ЕБС", "assignee": "Артем Кислицын", "at": "2026-05-22T10:16:14.492+0000", "by": "Дарья Лебедева", "from": null, "to": 21.0}, {"key": "DEV-613", "title": "[Ресерч] Добавление поддержки форматирования в билетах при загрузке через Excel", "assignee": "Денис Майнгардт", "at": "2026-06-10T03:25:07.072+0000", "by": "Денис Майнгардт", "from": null, "to": 5.0}, {"key": "DEV-226", "title": "Перенастройка криптоканала для доступа к СМЭВ, ЕСИА и Цифровому профилю", "assignee": "Дарья Лебедева", "at": "2026-05-13T14:37:11.407+0000", "by": "Дарья Лебедева", "from": null, "to": 21.0}, {"key": "DEV-747", "title": "[Баг-репорт] При смене пароля на новый можно поставить тот же", "assignee": "Дмитрий Кузнецов", "at": "2026-05-28T13:56:12.760+0000", "by": "Артем Кислицын", "from": null, "to": 2.0}, {"key": "DEV-605", "title": "[Ресерч] Возможность вставлять картинки в билеты", "assignee": "Денис Майнгардт", "at": "2026-06-10T03:25:02.107+0000", "by": "Денис Майнгардт", "from": null, "to": 3.0}, {"key": "DEV-517", "title": "Провести тестирование способов обхода и зафиксировать их", "assignee": "Павел Григорьев", "at": "2026-05-22T14:35:10.932+0000", "by": "Дарья Лебедева", "from": null, "to": 2.0}, {"key": "DEV-737", "title": "[Backend] Добавить остаток часов в прокторинге", "assignee": "Дмитрий Кузнецов", "at": "2026-05-28T11:32:25.239+0000", "by": "Артем Кислицын", "from": null, "to": 3.0}, {"key": "DEV-683", "title": "Работы по сайту в рамках ПДн", "assignee": "Артем Кислицын", "at": "2026-05-22T14:11:21.113+0000", "by": "Дарья Лебедева", "from": null, "to": 1.0}, {"key": "DEV-683", "title": "Работы по сайту в рамках ПДн", "assignee": "Артем Кислицын", "at": "2026-05-25T03:02:49.158+0000", "by": "Денис Майнгардт", "from": 1.0, "to": 2.0}, {"key": "DEV-689", "title": "[Frontend] Добавить формы CES / NPS на основе готовых компонентов и привязать к backend", "assignee": "Денис Майнгардт", "at": "2026-05-14T12:27:46.010+0000", "by": "Артем Кислицын", "from": null, "to": 8.0}, {"key": "DEV-689", "title": "[Frontend] Добавить формы CES / NPS на основе готовых компонентов и привязать к backend", "assignee": "Денис Майнгардт", "at": "2026-05-21T06:29:12.065+0000", "by": "Артем Кислицын", "from": 8.0, "to": 3.0}, {"key": "DEV-689", "title": "[Frontend] Добавить формы CES / NPS на основе готовых компонентов и привязать к backend", "assignee": "Денис Майнгардт", "at": "2026-05-25T03:22:21.716+0000", "by": "Денис Майнгардт", "from": 3.0, "to": 8.0}, {"key": "DEV-689", "title": "[Frontend] Добавить формы CES / NPS на основе готовых компонентов и привязать к backend", "assignee": "Денис Майнгардт", "at": "2026-05-25T03:24:14.301+0000", "by": "Денис Майнгардт", "from": 8.0, "to": 5.0}, {"key": "DEV-689", "title": "[Frontend] Добавить формы CES / NPS на основе готовых компонентов и привязать к backend", "assignee": "Денис Майнгардт", "at": "2026-05-25T07:29:44.723+0000", "by": "Денис Майнгардт", "from": 5.0, "to": 8.0}, {"key": "DEV-673", "title": "[Backend] Добавить метрики к продукту [CES, NPS] в интерфейсы", "assignee": "Дмитрий Кузнецов", "at": "2026-05-22T14:34:54.297+0000", "by": "Дарья Лебедева", "from": null, "to": 3.0}, {"key": "DEV-698", "title": "[Backend] Нормализация диапазона дат на бекенде", "assignee": "Дмитрий Кузнецов", "at": "2026-05-18T12:04:35.329+0000", "by": "Артем Кислицын", "from": null, "to": 3.0}, {"key": "DEV-742", "title": "Обновить чек-боксы на сайте на форме отправки заявки", "assignee": "Денис Майнгардт", "at": "2026-05-28T10:42:01.995+0000", "by": "Артем Кислицын", "from": null, "to": 2.0}, {"key": "DEV-741", "title": "Убрать с сайта баннер в подвале о получении полезных материалов на почту", "assignee": "Денис Майнгардт", "at": "2026-05-28T10:32:22.560+0000", "by": "Артем Кислицын", "from": null, "to": 1.0}, {"key": "DEV-684", "title": "Добавить баннер о сборе cookie со ссылкой на политику обработки cookie и создать страницу /cookie_policy", "assignee": "Денис Майнгардт", "at": "2026-05-22T14:11:02.077+0000", "by": "Дарья Лебедева", "from": null, "to": 1.0}, {"key": "DEV-684", "title": "Добавить баннер о сборе cookie со ссылкой на политику обработки cookie и создать страницу /cookie_policy", "assignee": "Денис Майнгардт", "at": "2026-05-28T10:38:25.729+0000", "by": "Артем Кислицын", "from": 1.0, "to": 2.0}, {"key": "DEV-755", "title": "Добавить текст согласия в чекбокс", "assignee": "Денис Майнгардт", "at": "2026-06-01T07:07:02.216+0000", "by": "Денис Майнгардт", "from": null, "to": 1.0}, {"key": "DEV-640", "title": "Получение аттестата ФСТЭК", "assignee": "Дарья Лебедева", "at": "2026-05-13T14:49:12.631+0000", "by": "Дарья Лебедева", "from": null, "to": 21.0}], "paused": [{"key": "DEV-737", "title": "[Backend] Добавить остаток часов в прокторинге", "assignee": "Дмитрий Кузнецов", "status": "Заблокировано", "since": "2026-06-09T12:27:38.774+0000", "age_days": 9.765594440023149}, {"key": "DEV-683", "title": "Работы по сайту в рамках ПДн", "assignee": "Артем Кислицын", "status": "Заблокировано", "since": "2026-06-15T13:41:34.183+0000", "age_days": 3.7142586877083335}, {"key": "DEV-738", "title": "Подготовительные работы для обновления коробки НН", "assignee": "Георгий Календарев", "status": "Заблокировано", "since": "2026-06-16T06:52:07.521+0000", "age_days": 2.9985950534490744}, {"key": "DEV-640", "title": "Получение аттестата ФСТЭК", "assignee": "Дарья Лебедева", "status": "Заблокировано", "since": "2026-05-29T16:59:47.385+0000", "age_days": 20.576605886782406}], "status_counts": {"done": 15, "cancelled": 6, "in_progress": 17, "paused": 4, "open": 7, "other": 0}, "generated_at": "2026-06-19T06:50:06.133618+00:00"};
+
+// Donut chart — статусы задач
+const sc = data.status_counts || {};
+const statusLabels = ['Закрыто', 'Отменено', 'В работе', 'Открыто', 'На паузе', 'Прочее'];
+const statusVals = [sc.done || 0, sc.cancelled || 0, sc.in_progress || 0, sc.open || 0, sc.paused || 0, sc.other || 0];
+const statusColors = ['#548235', '#C77700', '#1F3864', '#A0A0A0', '#7B7B9E', '#E0E0E0'];
+// Фильтруем нули
+const nonZero = statusLabels.map((l, i) => ({l, v: statusVals[i], c: statusColors[i]})).filter(x => x.v > 0);
+new Chart(document.getElementById('statusChart'), {
+  type: 'doughnut',
+  data: {
+    labels: nonZero.map(x => x.l),
+    datasets: [{ data: nonZero.map(x => x.v), backgroundColor: nonZero.map(x => x.c), borderWidth: 2, borderColor: '#fff' }],
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'right' } },
+  },
+});
+
+// График — кто чаще переоценивает
+const byPersonCount = {};
+const seen = new Set();
+data.reestimations.forEach(r => {
+  const id = r.key + "|" + r.at;
+  if (seen.has(id)) return;
+  seen.add(id);
+  byPersonCount[r.by] = (byPersonCount[r.by] || 0) + 1;
+});
+new Chart(document.getElementById('byPerson'), {
+  type: 'bar',
+  data: {
+    labels: Object.keys(byPersonCount),
+    datasets: [{ data: Object.values(byPersonCount), backgroundColor: '#FE4D01' }],
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+  },
+});
+
+// Возраст пауз
+const pausedSorted = [...data.paused].sort((a,b) => (b.age_days||0) - (a.age_days||0));
+new Chart(document.getElementById('pausedAge'), {
+  type: 'bar',
+  data: {
+    labels: pausedSorted.map(p => p.key),
+    datasets: [{
+      data: pausedSorted.map(p => p.age_days || 0),
+      backgroundColor: pausedSorted.map(p => (p.age_days || 0) > 5 ? '#C77700' : '#548235'),
+    }],
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw.toFixed(1) + ' дн.' } } },
+    scales: { x: { beginAtZero: true, title: { display: true, text: 'дни на паузе' } } },
+  },
+});
+</script>
 </body>
 </html>
